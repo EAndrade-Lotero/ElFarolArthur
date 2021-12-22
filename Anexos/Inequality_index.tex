@@ -1,0 +1,65 @@
+\documentclass{minimal}
+\usepackage{mathtools}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\newcommand{\tfi}{\textsc{tfi}}
+\newcommand{\tii}{\textsc{tii}}
+\newcommand{\mti}{\textsc{mti}}
+\newcommand{\FQ}{\mbox{FQ}}
+\newcommand{\FP}{\mbox{FP}}
+\newcommand{\R}{\mbox{\texttt{resour}}}
+\newcommand{\ro}{\mbox{\texttt{rounds}}}
+\newcommand{\fl}[1]{\lfloor#1\rfloor}
+\newcommand{\cl}[1]{\lceil#1\rceil}
+
+\begin{document}
+
+In this annex we explain why we need to adapt Posinglione's et al. Time-Box Fairness Index (\tfi) and how we adapted it. To start with, \textsc{tfi} index is defined as follows (pp.~322f):
+
+\
+
+\begin{itemize}
+\item[] Time-box Iniquity index (\tii) = $\displaystyle{\sqrt{\frac{\sum_i^n(x_i-a\times\FQ)^2}{N}}}$
+\item[]
+\item[] Maximum Time-box Iniquity (\mti) = $\displaystyle{\sqrt{a^2(\FQ\times\FP-\FQ^2)}}$
+\item[]
+\item[] Time-box Fairness index (\tfi) = 1 - $\frac{\tii}{\mti}$
+\end{itemize}
+
+\
+
+Where $x_i$ is the total number of times that agent $i$ goes to the bar, $a$ is the fraction of the number of rounds with respect to the fair period, \FQ\ is the fair quantity and \FP\ is the fair period (op.cit., \S4.2.1). The idea behind this definition is that \tii\ is the standard deviation of the amount of resources each agent gets during the game, assuming that all resources have been exhausted. Moreover, the quantity \mti\ defines the maximum possible value of \tii, so that the fraction $\frac{\tii}{\mti}$ measures a proportion of inequity. Finally, \tfi, being 1 minus these proportion, is a measure of equity. Now, observe that it is possible for \tii\ to be greater than \mti\ when no agent goes to the bar, that is, when $x_i=0$ for all agents $i$. In this way, we have that
+
+\[
+\tii = a\times\FQ = a\sqrt{\FQ^2}> a\sqrt{(\FQ\times\FP - \FQ^2)} = \mti
+\]
+
+This difficulty arises because \mti\ is defined when we have in mind that all resources have been used, so that $\sum_i^N x_i = a\times\FQ\times N$. But this need not always be the case. Thus, we have to adapt the original measures to take this into account.
+
+Let us define $\R=\sum_i^N x_i$ and $\ro$ the total number of rounds. The worst case scenario for equity is when some $W$ agents get as much resources as they can get and the remaining $N-W$ agents get nothing. Now, the maximum resources an agent can get during the game is one per round, that is, \ro\ in total. So, only $W=\fl{\frac{\R}{\ro}}$ agents can get this maximum (where $\fl{x}$ is the floor function of $x$, that is, the integer part of $x$). This leaves $N-\fl{\frac{\R}{\ro}}$ agents getting zero resources and at most one agent getting as much as (\R\ mod \ro). Whether there is one agent getting this amount of resources depends on whether $\fl{\frac{\R}{\ro}}=\cl{\frac{\R}{\ro}}$ (where $\cl{x}$ is the ceiling function of $x$). Observe that the quantity $B=\cl{\frac{\R}{\ro}} - \fl{\frac{\R}{\ro}}$ is either 0 or 1, depending whether there is a residual.
+
+In light of this, we can adjust the previous measures in the following way:
+
+\
+
+\begin{itemize}
+\item[] Adapted time-box iniquity index (\tii') = $\displaystyle{\sqrt{\frac{\sum_i^n(x_i-\frac{\R}{N})^2}{N}}}$
+\item[]
+\item[] Adapted maximum time-box iniquity (\mti') = 
+
+$$\displaystyle{\sqrt{\frac{(\ro - \frac{\R}{N})^2W+((\R\ \mbox{mod } \ro) -  \frac{\R}{N})^2B  +  (\frac{\R}{N})^2(N-W-B)}{N}}}$$
+\item[]
+\end{itemize}
+
+Observe that \tii\ and \tii', as well as \mti\ and \mti', coincide when all resources are exhausted, that is, when $\R=a\times\FQ\times N$.
+
+Finally, the rate of these two new measures is equal to:
+
+\[
+\sqrt{\frac{\sum_i^n(x_i-\frac{\R}{N})^2}{(\ro - \frac{\R}{N})^2W+((\R\ \mbox{mod } \ro) -  \frac{\R}{N})^2B  +  (\frac{\R}{N})^2(N-W-B)}}
+\]
+
+which is our Time-box inequity index. 
+
+\end{document}
