@@ -54,7 +54,7 @@ def graficar_desemp(df):
 
 def comparar_desemp(df):
     data = P.merge_modelos(df)
-    df1 = pd.DataFrame(df[df['Ronda']>int(max(df.Ronda)*.8)])
+    # df1 = pd.DataFrame(df[df['Ronda']>int(max(df.Ronda)*.8)])
     n_agentes = df.Agente.max() + 1
     paleta = "tab10" #'flare'
     modelos = df.Modelo.unique().tolist()
@@ -76,35 +76,35 @@ def comparar_desemp(df):
     f3_ax1.set_xlabel('Round')
     f3_ax1.set_title('Attendance per round')
     # Plot dist. of attendance
-    attendance = df1.groupby(['Modelo', 'Identificador', 'Ronda'])['Estado'].mean().reset_index()
+    attendance = df.groupby(['Modelo', 'Identificador', 'Ronda'])['Estado'].mean().reset_index()
     attendance['Concurrencia'] = attendance['Estado']*100
     sns.kdeplot(x='Concurrencia',data=attendance,fill=True,ax=f3_ax2, hue='Modelo', palette=paleta)
     f3_ax2.set_xlabel('Aattendance\n(last 20 rounds)')
     f3_ax2.set_title('Dist. of attendance')
     # Plot dist. going to bar
-    valores = df1.groupby(['Modelo', 'Identificador', 'Agente'])['Estado'].sum().reset_index()
+    valores = df.groupby(['Modelo', 'Identificador', 'Agente'])['Estado'].sum().reset_index()
     if valores.Estado.min() < valores.Estado.max():
         sns.kdeplot(x='Estado', data=valores, fill=True,ax=f3_ax3, hue='Modelo', palette=paleta)
     else:
         sns.histplot(x='Estado', data=valores, fill=True, bins=18, multiple='dodge',ax=f3_ax3, hue='Modelo', palette=paleta)
     f3_ax3.set_xlabel('# of rounds agent goes to bar\n(last 20 rounds)')
     f3_ax3.set_title('Agent goes to bar')
-    # Plot dist. of accumulated score per player
-    valores = df1.groupby(['Modelo', 'Identificador', 'Agente'])['Puntaje'].sum().reset_index()
+    # Plot dist. of mean score per player
+    valores = df.groupby(['Modelo', 'Identificador', 'Agente'])['Puntaje'].mean().reset_index()
     if valores.Puntaje.min() < valores.Puntaje.max():
         sns.kdeplot(x='Puntaje',data=valores,fill=True,ax=f3_ax4, hue='Modelo', palette=paleta)
     else:
         sns.histplot(x='Puntaje',data=valores,fill=True, bins=18, multiple='dodge', hue='Modelo', palette=paleta)
-    f3_ax4.set_xlabel('Agent\'s accumulated score\n(last 20 rounds)')
-    f3_ax4.set_title('Dist. of score')
+    f3_ax4.set_xlabel('Agent\'s average score\n(last 20 rounds)')
+    f3_ax4.set_title('Dist. of av. score')
     # Plot Gini
     sns.kdeplot('Gini', data=data,fill=True,ax=f3_ax5,hue='Modelo',palette=paleta)
     f3_ax5.set_xlabel('Gini coefficient\n(last 20 rounds)')
     f3_ax5.set_title('Gini')
-    # Plot Inequity
-    sns.kdeplot('Iniquity', data=data,fill=True,ax=f3_ax6,hue='Modelo',palette=paleta)
-    f3_ax6.set_xlabel('Iniquity Index\n(last 20 rounds)')
-    f3_ax6.set_title('Iniquity')
+    # Plot TBFI
+    sns.kdeplot('TBFI', data=data,fill=True,ax=f3_ax6,hue='Modelo',palette=paleta)
+    f3_ax6.set_xlabel('TBFI\n(last 20 rounds)')
+    f3_ax6.set_title('TBFI')
     # Plot efficiency
     sns.kdeplot('Efficiency', data=data,fill=True,ax=f3_ax7,hue='Modelo',palette=paleta)
     f3_ax7.set_xlabel('Av. score per simulation\n(last 20 rounds)')
@@ -201,21 +201,21 @@ def comparar_desemp_anterior(df):
 
     plt.subplots_adjust(top=1.85)
 
-def comparacion(df, degrees=0):
+def comparacion(df, degrees=0, comp='Model'):
     data = P.merge_modelos(df)
     try:
-        a = data['Precision'].unique()
-        variables = ['Attendance', 'Deviation', 'Efficiency', 'Precision', 'Gini', 'Iniquity']
+        a = data['Inaccuracy'].unique()
+        variables = ['Attendance', 'Deviation', 'Efficiency', 'Gini', 'TBFI', 'Inaccuracy']
     except:
-        variables = ['Attendance', 'Deviation', 'Efficiency', 'Gap', 'Gini', 'Iniquity']
+        variables = ['Attendance', 'Deviation', 'Efficiency', 'Gini', 'TBFI', 'Gap']
     fig, ax = plt.subplots(2,3, figsize=(9,6), tight_layout=True)
     for i, v in enumerate(variables):
         f = int(i/3)
         c = i % 3
         sns.lineplot(x='Modelo',y=v, data=data,ax=ax[f,c],err_style="bars",ci=95)
         ax[f,c].set_ylabel(f'Av. {v}')
-        ax[f,c].set_xlabel('Model')
-        ax[f,c].set_title(f'Av. {v} vs. Model')
+        ax[f,c].set_xlabel(comp)
+        ax[f,c].set_title(f'Av. {v} vs. ' + comp)
         ax[f,c].tick_params(labelrotation=degrees)
 
 def graficar_influencias_modelos(df):
@@ -240,6 +240,7 @@ def graficar_heatmaps(df, parametros, variables, to_file=False):
     assert(len(parametros) == 2)
     p1 = parametros[0]
     p2 = parametros[1]
+    assert(len(variables) < 7)
     data = P.merge_parametros(df, parametros, variables)
     fig, ax = plt.subplots(2,3, figsize=(9,6), tight_layout=True)
     for i, v in enumerate(variables):

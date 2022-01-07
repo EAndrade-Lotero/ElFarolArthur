@@ -4,10 +4,12 @@ from numpy import random
 import sys, math
 #from triangular import Triangular
 
+carpeta = '../Data_Farol/redes/'
+
 def guardar_imagen(n_vertices, identificador=''):
     g = ig.Graph()
     g.add_vertices(n_vertices)
-    g = ig.Graph.Read_Edgelist('./data/redes/connlist-' + str(identificador) + '.dat')
+    g = ig.Graph.Read_Edgelist(carpeta + 'connlist-'+ str(identificador) + '.dat')
     ig.plot(g,'imagenes/red.png')
 
 def random_graph(N, p, imagen=True, identificador=''):
@@ -44,7 +46,7 @@ def random_graph(N, p, imagen=True, identificador=''):
     # print(float(sum(lnkcnt))/N)
 
     aux = '-' + str(identificador) if identificador != '' else ''
-    ff = open('./data/redes/connlist' + aux + '.dat', 'w')
+    ff = open(carpeta + 'connlist' + aux + '.dat', 'w')
     for i in range(len(llinks)):
         # print("printing link")
         ff.write(str(llinks[i][0])+" "+str(llinks[i][1])+"\n")
@@ -55,7 +57,7 @@ def random_graph(N, p, imagen=True, identificador=''):
     for i in lnkcnt:
         hist[i] += 1
 
-    # hf = open('./data/redes/deg_hist-' + str(identificador) + '.dat', 'w')
+    # hf = open(carpeta + 'deg_hist-' + str(identificador) + '.dat', 'w')
     # for i in range(N):
     #     hf.write(str(i)+' '+str(hist[i])+'\n')
     # hf.close()
@@ -120,7 +122,7 @@ def small_world(N,p):
 
     print(lnkcnt)
 
-    ff = open('./data/connlist.dat', 'w')
+    ff = open(carpeta + 'connlist.dat', 'w')
     for i in range(len(llinks)):
         ff.write(str(llinks[i][0])+" "+str(llinks[i][1])+"\n")
     ff.close()
@@ -130,7 +132,7 @@ def small_world(N,p):
     for i in lnkcnt:
         hist[i] += 1
 
-    hf = open('./data/deg_hist.dat', 'w')
+    hf = open(carpeta + 'deg_hist.dat', 'w')
     for i in range(N):
         hf.write(str(i)+' '+str(hist[i])+'\n')
     hf.close()
@@ -221,7 +223,7 @@ def scale_free(N, N0, Nhci, pnhc, phc):
     print(lnkcnt)
     print(float(sum(lnkcnt))/N)
 
-    ff = open('./data/connlist.dat', 'w')
+    ff = open(carpeta + 'connlist.dat', 'w')
     for i in range(len(llinks)):
         ff.write(str(llinks[i][0])+" "+str(llinks[i][1])+"\n")
     ff.close()
@@ -231,7 +233,7 @@ def scale_free(N, N0, Nhci, pnhc, phc):
     for i in lnkcnt:
         hist[i] += 1
 
-    hf = open('./data/deg_hist.dat', 'w')
+    hf = open(carpeta + 'deg_hist.dat', 'w')
     for i in range(N):
         hf.write(str(i)+' '+str(hist[i])+'\n')
     hf.close()

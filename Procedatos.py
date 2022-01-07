@@ -62,37 +62,41 @@ def generar_ejemplo5(id=1):
     di['Puntaje'] = [0,1]*2 + [0]*6 + [1,0]*2 + [0]*6
     return pd.DataFrame(di)
 
-def leer_datos(memorias, predictores, conectividades, espejos=True, verb=True, muchos=False):
-    names = ['Memoria', 'Num_predic', 'Identificador', 'Ronda', 'Agente', 'Estado', 'Puntaje', 'Politica', 'Prediccion', 'Precision']
+def leer_datos(memorias, predictores, num_agentes, num_rondas, espejos=True, verb=True, muchos=False, cola=False):
+    names = ['Memoria', 'Num_predic', 'Identificador', 'Ronda', 'Agente', 'Estado', 'Puntaje', 'Politica', 'Prediccion', 'Precision', 'Num_agentes']
     df_list = []
     for d in memorias:
         for k in predictores:
-            for p in conectividades:
-                if verb:
-                    print(f"Leyendo datos sweep memoria {d} predictores {k} y conectividad {p}")
-                if not muchos:
-                    if espejos:
-                        archivo = '../Data_Farol/normal/data_todo/simulacion-' + str(d) + "-" + str(k) + '-' + str(p) + ".csv"
-                    else:
-                        archivo = '../Data_Farol/normal/data_sin_espejos/simulacion-' + str(d) + "-" + str(k) + '-' + str(p) + ".csv"
-                else:
-                    if espejos:
-                        archivo = '../Data_Farol/data_todo/simulacion-' + str(d) + "-" + str(k) + '-' + str(p) + ".csv"
-                    else:
-                        archivo = '../Data_Farol/data_sin_espejos/simulacion-' + str(d) + "-" + str(k) + '-' + str(p) + ".csv"
-                if verb:
-	                print(f"Cargando datos de archivo {archivo}...")
-                try:
-                    aux = pd.read_csv(archivo, names=names, header=None)
-                    if 'Memoria' in aux['Memoria'].unique().tolist():
-                        aux= aux.iloc[1:]
-                    aux['Conectividad'] = p
-                    # print(aux.head())
-                    df_list.append(aux)
+            for N in num_agentes:
+                for T in num_rondas:
                     if verb:
-	                    print("Listo")
-                except:
-                    print(f"Archivo {archivo} no existe! Saltando a siguiente opción")
+                        print(f"Leyendo datos sweep memoria {d} predictores {k} número de agentes {N} y número de rondas {T}")
+                    if not muchos:
+                        if espejos:
+                            archivo = '../Data_Farol/normal/data_todo/simulacion-' + str(d) + "-" + str(k) + '-' + str(N) + '-' + str(T) + ".csv"
+                        else:
+                            archivo = '../Data_Farol/normal/data_sin_espejos/simulacion-' + str(d) + "-" + str(k) + '-' + str(N) + '-' + str(T) + ".csv"
+                    else:
+                        if espejos:
+                            archivo = '../Data_Farol/data_todo/simulacion-' + str(d) + "-" + str(k) + '-' + str(N) + '-' + str(T) + ".csv"
+                        else:
+                            archivo = '../Data_Farol/data_sin_espejos/simulacion-' + str(d) + "-" + str(k) + '-' + '-' + str(N) + '-' + str(T) + ".csv"
+                    if verb:
+    	                print(f"Cargando datos de archivo {archivo}...")
+                    try:
+                        aux = pd.read_csv(archivo, names=names, header=None)
+                        if 'Memoria' in aux['Memoria'].unique().tolist():
+                            aux = aux.iloc[1:]
+                        # aux['Num_agentes'] = N
+                        aux['Num_rondas'] = T
+                        # print(aux.head())
+                        if cola:
+                            aux = pd.DataFrame(aux[aux.Ronda>int(max(aux.Ronda)*.8)])
+                        df_list.append(aux)
+                        if verb:
+    	                    print("Listo")
+                    except:
+                        print(f"Archivo {archivo} no existe! Saltando a siguiente opción")
     if verb:
     	print("Preparando dataframe...")
     data = pd.concat(df_list)
@@ -100,9 +104,10 @@ def leer_datos(memorias, predictores, conectividades, espejos=True, verb=True, m
     	print(data.head())
     try:
         # data = data.dropna()
-        data['Conectividad'] = data['Conectividad'].astype(float)
         data['Memoria'] = data['Memoria'].astype(int)
         data['Num_predic'] = data['Num_predic'].astype(int)
+        data['Num_agentes'] = data['Num_agentes'].astype(int)
+        data['Num_rondas'] = data['Num_rondas'].astype(int)
         data['Identificador'] = data['Identificador'].astype(int)
         data['Ronda'] = data['Ronda'].astype(int)
         data['Agente'] = data['Agente'].astype(int)
@@ -116,9 +121,10 @@ def leer_datos(memorias, predictores, conectividades, espejos=True, verb=True, m
         if verb:
         	print(data.head())
         # data = data.dropna()
-        data['Conectividad'] = data['Conectividad'].astype(float)
         data['Memoria'] = data['Memoria'].astype(int)
         data['Num_predic'] = data['Num_predic'].astype(int)
+        data['Num_agentes'] = data['Num_agentes'].astype(int)
+        data['Num_rondas'] = data['Num_rondas'].astype(int)
         data['Identificador'] = data['Identificador'].astype(int)
         data['Ronda'] = data['Ronda'].astype(int)
         data['Agente'] = data['Agente'].astype(int)
@@ -127,13 +133,13 @@ def leer_datos(memorias, predictores, conectividades, espejos=True, verb=True, m
         data['Politica'] = data['Politica'].astype(str)
         data['Prediccion'] = data['Prediccion'].astype(int)
         data['Precision'] = data['Precision'].astype(float)
-    data = data[['Conectividad','Memoria','Num_predic','Identificador','Ronda','Agente','Estado','Puntaje','Politica', 'Prediccion', 'Precision']]
+    data = data[['Memoria','Num_predic','Num_agentes','Num_rondas','Identificador','Ronda','Agente','Estado','Puntaje','Politica', 'Prediccion', 'Precision']]
     if verb:
 	    print("Shape:", data.shape)
 	    print("Memoria value counts:", data['Memoria'].value_counts())
 	    print("Predictores value counts:", data['Num_predic'].value_counts())
-	    print("Conectividades value counts:", data['Conectividad'].value_counts())
-	    print("Agente value counts:", data['Agente'].value_counts())
+	    print("Agente value counts:", data['Num_agentes'].value_counts())
+	    print("Rounds value counts:", data['Num_rondas'].value_counts())
     return data
 
 def leer_datos_aleatorio(probabilidades, conectividades, num_agentes, verb=True):
@@ -264,12 +270,12 @@ def encuentra_gini(df):
 
 def encuentra_findex(df):
     '''
-    Time-Box Fairness Index (TFI) (Ponsiglione et al., 2015)
+    Time-Box Fairness Index (TBFI) (Ponsiglione et al., 2015)
     Ajustado para considerar que no todas las rondas se usan todos
     los recursos.
     '''
     df['lleva_recurso'] = df['Puntaje'].apply(lambda x: 1 if x == 1 else 0)
-    iniquity = []
+    tbfi = []
     for sim, grp_sim in df.groupby('Identificador'):
         rounds = (grp_sim['Ronda'].max() - grp_sim['Ronda'].min()) + 1
         n_agentes = grp_sim['Agente'].max() + 1
@@ -292,8 +298,8 @@ def encuentra_findex(df):
         else:
             # print('Atención: denominador 0 en Iniquity Index!')
             iniq = 0
-        iniquity.append(iniq)
-    return iniquity
+        tbfi.append(1 - iniq)
+    return tbfi
 
 def encuentra_findex_anterior(df):
     '''
@@ -318,20 +324,18 @@ def encuentra_precision(df):
     return df.groupby('Identificador')['Precision'].mean().tolist()
 
 def merge_modelos(df):
-    df1 = pd.DataFrame(df[df['Ronda']>int(max(df.Ronda)*.8)])
-    modelos = df1.Modelo.unique().tolist()
-    n_agentes = df1.Agente.max() + 1
-    df1['Concurrencia'] = df1.groupby(['Modelo','Identificador','Ronda'])['Estado'].transform('mean')
-    m_attendance = df1.groupby(['Modelo','Identificador'])['Concurrencia'].mean().reset_index(name='Attendance')
-    sd_attendance = df1.groupby(['Modelo','Identificador'])['Concurrencia'].std().reset_index(name='Deviation')
+    modelos = df.Modelo.unique().tolist()
+    df['Concurrencia'] = df.groupby(['Modelo','Identificador','Ronda'])['Estado'].transform('mean')
+    m_attendance = df.groupby(['Modelo','Identificador'])['Concurrencia'].mean().reset_index(name='Attendance')
+    sd_attendance = df.groupby(['Modelo','Identificador'])['Concurrencia'].std().reset_index(name='Deviation')
     data_s = []
     try:
-        a = df1['Precision'].unique()
-        for mod, grp in df1.groupby('Modelo'):
-            data_s.append(pd.DataFrame({'Efficiency':encuentra_m_efficiency(grp),'Gap':encuentra_gap(grp), 'Gini':encuentra_gini(grp), 'Precision':encuentra_precision(grp), 'Iniquity':encuentra_findex(grp), 'Identificador':grp['Identificador'].unique().tolist(),'Modelo':mod}))
+        a = df['Precision'].unique()
+        for mod, grp in df.groupby('Modelo'):
+            data_s.append(pd.DataFrame({'Efficiency':encuentra_m_efficiency(grp),'Gap':encuentra_gap(grp), 'Gini':encuentra_gini(grp), 'Inaccuracy':encuentra_precision(grp), 'TBFI':encuentra_findex(grp), 'Identificador':grp['Identificador'].unique().tolist(),'Modelo':mod}))
     except:
-        for mod, grp in df1.groupby('Modelo'):
-            data_s.append(pd.DataFrame({'Efficiency':encuentra_m_efficiency(grp),'Gap':encuentra_gap(grp), 'Gini':encuentra_gini(grp),  'Iniquity':encuentra_findex(grp), 'Identificador':grp['Identificador'].unique().tolist(),'Modelo':mod}))
+        for mod, grp in df.groupby('Modelo'):
+            data_s.append(pd.DataFrame({'Efficiency':encuentra_m_efficiency(grp),'Gap':encuentra_gap(grp), 'Gini':encuentra_gini(grp),  'TBFI':encuentra_findex(grp), 'Identificador':grp['Identificador'].unique().tolist(),'Modelo':mod}))
 
     df2 = pd.concat(data_s)
     df2 = pd.merge(df2, m_attendance, on=['Modelo','Identificador'])
@@ -340,19 +344,17 @@ def merge_modelos(df):
 
 def merge_parametros(df, parametros, variables):
     assert(len(parametros) == 2)
-    df1 = pd.DataFrame(df[df['Ronda']>int(max(df.Ronda)*.8)])
-    print("Solo últimas 20 rondas!")
     if ('Attendance' in variables) or ('Deviation' in variables):
-        df1['Concurrencia'] = df1.groupby(parametros+['Identificador','Ronda'])['Estado'].transform('mean')
-        m_attendance = df1.groupby(parametros+['Identificador'])['Concurrencia'].mean().reset_index(name='Attendance')
-        sd_attendance = df1.groupby(parametros+['Identificador'])['Concurrencia'].std().reset_index(name='Deviation')
+        df['Concurrencia'] = df.groupby(parametros+['Identificador','Ronda'])['Estado'].transform('mean')
+        m_attendance = df.groupby(parametros+['Identificador'])['Concurrencia'].mean().reset_index(name='Attendance')
+        sd_attendance = df.groupby(parametros+['Identificador'])['Concurrencia'].std().reset_index(name='Deviation')
     # m_attendance = df1.groupby(parametros+['Identificador'])['Estado'].mean().reset_index(name='Attendance')
     # sd_attendance = df1.groupby(parametros+['Identificador'])['Estado'].std().reset_index(name='Deviation')
     print("Attendance y Deviation listos!")
     data_s = []
-    A = df1.groupby(parametros)
-    p1 = df1[parametros[0]].unique().tolist()
-    p2 = df1[parametros[1]].unique().tolist()
+    A = df.groupby(parametros)
+    p1 = df[parametros[0]].unique().tolist()
+    p2 = df[parametros[1]].unique().tolist()
     for m in product(p1,p2):
         grp = A.get_group(m)
         diccionario = {}
@@ -361,12 +363,12 @@ def merge_parametros(df, parametros, variables):
         diccionario['Identificador'] = grp['Identificador'].unique().tolist()
         if 'Efficiency' in variables:
             diccionario['Efficiency'] = encuentra_m_efficiency(grp)
-        if 'Gap' in variables:
-            diccionario['Gap'] = encuentra_gap(grp)
+        if 'Inaccuracy' in variables:
+            diccionario['Inaccuracy'] = encuentra_precision(grp)
         if 'Gini' in variables:
             diccionario['Gini'] = encuentra_gini(grp)
-        if 'Iniquity' in variables:
-            diccionario['Iniquity'] = encuentra_findex(grp)
+        if 'TBFI' in variables:
+            diccionario['TBFI'] = encuentra_findex(grp)
         data_s.append(pd.DataFrame(diccionario))
     df_ = pd.concat(data_s)
     df_ = pd.merge(df_, m_attendance, on=parametros+['Identificador'])
