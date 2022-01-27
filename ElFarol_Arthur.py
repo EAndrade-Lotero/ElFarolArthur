@@ -3,13 +3,14 @@ from random import choice, sample, randint, uniform
 import numpy as np
 import pandas as pd
 from os import remove
+from itertools import product
 print("Listo!")
 
 def distancia(x, y):
     return abs(x - y)
 
 class Predictor:
-    def __init__(self, long_memoria, indicador, espejos):
+    def __init__(self, long_memoria, espejos):
         if long_memoria < 1:
         	self.ventana = 0
         else:
@@ -21,7 +22,6 @@ class Predictor:
         	self.espejo = False
         self.precision = [np.nan]
         self.prediccion = []
-        self.indicador = indicador
 
     def predecir(self, memoria, num_agentes, umbral):
         long_memoria = len(memoria)
@@ -29,11 +29,9 @@ class Predictor:
         ventana = self.ventana
         espejo = self.espejo
         if ciclico:
-            # indices = list(range(long_memoria - retardo, -1, -retardo))
             indices = list(range(long_memoria - 1, -1, -ventana))
             valores = [memoria[x] for x in indices]
         else:
-            # valores = historia[max(long_memoria-retardo-ventana+1, 0):max(long_memoria-retardo+1, 0)]
             valores = memoria[-ventana:]
         try:
             prediccion = int(np.mean(valores))
@@ -47,7 +45,7 @@ class Predictor:
         ventana = str(self.ventana)
         ciclico = "-ciclico" if self.ciclico else "-ventana"
         espejo = "-espejo" if self.espejo else ""
-        return ventana + ciclico + espejo + f"({self.indicador})"
+        return ventana + ciclico + espejo
 
 class Agente:
     def __init__(self, estados, scores, predictores, predictor_activo):
@@ -68,12 +66,26 @@ class Bar:
         self.identificador = identificador
         self.historia = []
         self.predictores = []
-        for i in range(100):
-            p = Predictor(self.long_memoria,i,espejos)
+        # Crear todos los predictores posibles
+        ventanas = list(range(1,long_memoria+1))
+        ciclicos = [True, False]
+        if espejos:
+            espejos_ = [True, False]
+        else:
+            espejos_ = [False]
+        tuplas = product(ventanas, ciclicos, espejos_)
+        for tupla in tuplas:
+            p = Predictor(self.long_memoria,espejos)
+            p.ventana = tupla[0]
+            p.ciclico = tupla[1]
+            p.espejo = tupla[2]
             self.predictores.append(p)
         self.agentes = []
         for i in range(self.num_agentes):
-            predictores_agente = sample(self.predictores, self.num_predictores)
+            if self.num_predictores <= len(self.predictores):
+                predictores_agente = sample(self.predictores, self.num_predictores)
+            else:
+                predictores_agente = self.predictores
             # print(f"Predictores agente {i}:", str([str(p) for p in predictores_agente]))
             self.agentes.append(Agente([randint(0,1)], [], predictores_agente, [choice(predictores_agente)]))
         self.calcular_asistencia() # Encuentra la asistencia al bar
@@ -110,13 +122,12 @@ class Bar:
             p.predecir(historia, self.num_agentes, self.umbral)
 
     def actualizar_precision(self):
-        historia = self.historia[-self.long_memoria - 1:]  # por qué el -1 ? Para que historia siempre sea uno más larga que predicciones
+        historia = self.historia
         for p in self.predictores:
             if self.long_memoria == 0:
 	            p.precision.append(1)
             else:
-	            predicciones = p.prediccion[-self.long_memoria:]
-	            # print("Historia vs prediccion", historia, predicciones)
+	            predicciones = p.prediccion
 	            precision_historia = np.mean([distancia(historia[i + 1], predicciones[i]) for i in range(len(historia) - 1)])
 	            p.precision.append(precision_historia)
 
