@@ -13,14 +13,14 @@ def leer_datos(memorias, predictores, num_agentes, num_rondas, espejos=True, ver
                         print(f"Leyendo datos sweep memoria {d} predictores {k} número de agentes {N} y número de rondas {T}")
                     if not muchos:
                         if espejos:
-                            archivo = '../Data_Farol/normal/data_todo/simulacion-' + str(d) + "-" + str(k) + '-' + str(N) + '-' + str(T) + ".csv"
+                            archivo = './data/espejos/simulacion-' + str(d) + "-" + str(k) + '-' + str(N) + '-' + str(T) + ".csv"
                         else:
-                            archivo = '../Data_Farol/normal/data_sin_espejos/simulacion-' + str(d) + "-" + str(k) + '-' + str(N) + '-' + str(T) + ".csv"
+                            archivo = './data/simulacion-' + str(d) + "-" + str(k) + '-' + str(N) + '-' + str(T) + ".csv"
                     else:
                         if espejos:
-                            archivo = '../Data_Farol/data_todo/simulacion-' + str(d) + "-" + str(k) + '-' + str(N) + '-' + str(T) + ".csv"
+                            archivo = './data/espejos/simulacion-' + str(d) + "-" + str(k) + '-' + str(N) + '-' + str(T) + ".csv"
                         else:
-                            archivo = '../Data_Farol/data_sin_espejos/simulacion-' + str(d) + "-" + str(k) + '-' + '-' + str(N) + '-' + str(T) + ".csv"
+                            archivo = './data/simulacion-' + str(d) + "-" + str(k) + '-' + '-' + str(N) + '-' + str(T) + ".csv"
                     if verb:
     	                print(f"Cargando datos de archivo {archivo}...")
                     try:
@@ -129,3 +129,53 @@ def merge_parametros(df, parametros, variables):
     df_ = pd.merge(df_, sd_attendance, on=parametros+['Identificador'])
     print("Dataframe listo!")
     return df_
+
+class ListaPrioritaria():
+
+    def __init__(self):
+        self.diccionario = {}
+
+    def __str__(self):
+        cadena = '['
+        inicial = True
+        for costo in self.diccionario:
+            elementos = self.diccionario[costo]
+            for elemento in elementos:
+                if inicial:
+                    cadena += '(' + str(elemento) + ',' + str(costo) + ')'
+                    inicial = False
+                else:
+                    cadena += ', (' + str(elemento) + ',' + str(costo) + ')'
+
+        return cadena + ']'
+
+    def push(self, elemento, costo):
+        try:
+            self.diccionario[costo].append(elemento)
+        except:
+            self.diccionario[costo] = [elemento]
+
+    def pop(self):
+        min_costo = np.min(np.array(list(self.diccionario.keys())))
+        candidatos = self.diccionario[min_costo]
+        elemento = candidatos.pop()
+        if len(candidatos) == 0:
+            del self.diccionario[min_costo]
+        return elemento
+
+    def is_empty(self):
+        return len(self.diccionario) == 0
+
+def diferencia(x, y):
+    if len(x) == 0:
+        return np.nan
+    elif len(x) < 2:
+        return 0
+    else:
+        y1 = ListaPrioritaria()
+        for i, j in enumerate(y):
+            y1.push(i, 100 - j)
+        ind_max1 = y1.pop()
+        ind_max2 = y1.pop()
+#        return f'|{x[ind_max1]} - {x[ind_max2]}|'
+        return np.abs(x[ind_max1] - x[ind_max2])
