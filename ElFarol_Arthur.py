@@ -55,7 +55,7 @@ class Agente:
         self.predictor_activo = predictor_activo # lista
 
     def __str__(self):
-        return "E:{0}, S:{1}, V:{2}, P:{3}".format(self.estado, self.score, self.vecinos, str(self.predictor_activo[-1]))
+        return "E:{0}, S:{1}, P:{2}".format(self.estado, self.score, str(self.predictor_activo[-1]))
 
 class Bar:
     def __init__(self, num_agentes, umbral, long_memoria, num_predictores, identificador, espejos):
