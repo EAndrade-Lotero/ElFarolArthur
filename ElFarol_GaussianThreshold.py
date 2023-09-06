@@ -166,6 +166,7 @@ class Bar:
         politica = []
         prediccion = []
         precision = []
+        umbral_ind = []
         num_iteraciones = len(self.historia) - 1
         for i in range(self.num_agentes):
             for r in range(num_iteraciones):
@@ -173,6 +174,8 @@ class Bar:
                 ronda.append(r)
                 a = self.agentes[i]
                 p = a.predictor_activo[r]
+                umbral = self.umbrales[i]
+                umbral_ind.append(umbral)
                 estado.append(a.estado[r])
                 puntaje.append(a.score[r])
                 politica.append(str(p))
@@ -182,6 +185,7 @@ class Bar:
                                     {\
                                     'Ronda': ronda,\
                                     'Agente': agente,\
+                                    'Umbral': umbral_ind,\
                                     'Estado': estado,\
                                     'Puntaje': puntaje,\
                                     'Politica': politica,\
@@ -196,10 +200,10 @@ class Bar:
         data['Std_umbral'] = self.std_umbral
         data['Num_agentes'] = self.num_agentes
         data = data[['Memoria', 'Num_predic', 'Std_umbral', 'Identificador','Ronda','Agente',\
-                     'Estado','Puntaje','Politica','Prediccion', 'Precision']]
+                     'Umbral', 'Estado','Puntaje','Politica','Prediccion', 'Precision']]
         return data
 
-def guardar(dataFrame, archivo, inicial, espejos=True, muchos=False):
+def guardar(dataFrame, archivo, inicial, espejos=True, muchos=False, header=False):
     if not muchos:
         if espejos:
             archivo = "./Data_Farol_Gaussian_Threshold/normal/data_todo/" + archivo
@@ -216,10 +220,10 @@ def guardar(dataFrame, archivo, inicial, espejos=True, muchos=False):
         except:
             pass
         with open(archivo, 'w') as f:
-            dataFrame.to_csv(f, header=False, index=False)
+            dataFrame.to_csv(f, header=header, index=False)
     else:
         with open(archivo, 'a') as f:
-            dataFrame.to_csv(f, header=False, index=False)
+            dataFrame.to_csv(f, header=header, index=False)
 
 def simulacion(num_agentes, umbral, std_umbral, long_memoria, num_predictores, num_rondas, inicial=True, identificador='', espejos=True, DEB=False, to_file=True):
     bar = Bar(num_agentes, umbral, std_umbral, long_memoria, num_predictores, identificador, espejos)
@@ -243,10 +247,10 @@ def simulacion(num_agentes, umbral, std_umbral, long_memoria, num_predictores, n
                 print(a)
     data = bar.crea_dataframe_agentes()
     data['Num_rondas'] = num_rondas
-    archivo = 'simulacion-' + str(long_memoria) + '-' + str(num_predictores) + '-' + str(std_umbral) + '-' + str(num_agentes) + '-' + str(num_rondas) + '.csv'
+    archivo = 'TEST-' + str(long_memoria) + '-' + str(num_predictores) + '-' + str(std_umbral) + '-' + str(num_agentes) + '-' + str(num_rondas) + '.csv'
     if to_file:
         if num_agentes < 1000:
-            guardar(data, archivo, inicial, espejos)
+            guardar(data, archivo, inicial, espejos, header=True)
         else:
             guardar(data, archivo, inicial, espejos, muchos=True)
         if DEB:
