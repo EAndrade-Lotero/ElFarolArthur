@@ -9,6 +9,9 @@ __pycache__/
 # OS temporal file
 .DS_Store
 
+# Ignore data files
+data/
+
 # Distribution / packaging
 .Python
 build/

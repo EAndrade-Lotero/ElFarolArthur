@@ -1,6 +1,6 @@
 # ElFarolArthur
 
-**ElFarolArthur** is a Python code for replicating Brian Arthur's method of predictors to solve [El Farol Bar problem](https://sites.santafe.edu/~wbarthur/elfarol.htm).
+**ElFarolArthur** is a Python implementation of Brian Arthur's method of predictors to solve [El Farol Bar problem](https://sites.santafe.edu/~wbarthur/elfarol.htm).
 
 ---
 
@@ -46,7 +46,7 @@ ElFarolArthur/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 

@@ -6,8 +6,6 @@ import pandas as pd
 
 from itertools import product
 
-random.seed(42)  # For reproducibility
-
 class Predictor:
     '''Class defining a predictor'''
     def __init__(self, memory_length, mirrors):
