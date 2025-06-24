@@ -1,27 +1,26 @@
-print("Importing packages...")
-from random import choice, sample, randint, uniform
+### El Farol Bar Problem Classes
+
+import random
 import numpy as np
 import pandas as pd
-from os import remove
-from itertools import product
-print("Ready!")
 
-def distance(x, y):
-    """Returns the absolute distance between two values."""
-    return abs(x - y)
+from itertools import product
+
+random.seed(42)  # For reproducibility
 
 class Predictor:
+    '''Class defining a predictor'''
     def __init__(self, memory_length, mirrors):
         # Window size for memory, random if memory_length >= 1
         if memory_length < 1:
             self.window = 0
         else:
-            self.window = randint(1, memory_length)
+            self.window = random.randint(1, memory_length)
         # Whether the predictor is cyclic
-        self.cyclic = choice([True, False])
+        self.cyclic = random.choice([True, False])
         # Whether the predictor uses the "mirror" strategy
         if mirrors:
-            self.mirror = choice([True, False])
+            self.mirror = random.choice([True, False])
         else:
             self.mirror = False
         self.inaccuracy = [np.nan]  # List to store inaccuracy over time
@@ -52,7 +51,10 @@ class Predictor:
         mirror = "-mirror" if self.mirror else ""
         return window + cyclic + mirror
 
+
+
 class Agent:
+    '''Class defining an agent in the El Farol Bar problem'''
     def __init__(self, states, scores, predictors, active_predictor):
         self.state = states           # List of states (attendance decisions)
         self.score = scores           # List of scores
@@ -61,6 +63,7 @@ class Agent:
 
     def __str__(self):
         return "S:{0}, Sc:{1}, P:{2}".format(self.state, self.score, str(self.active_predictor[-1]))
+
 
 class Bar:
     def __init__(self, num_agents, threshold, memory_length, num_predictors, identifier, mirrors):
@@ -91,10 +94,10 @@ class Bar:
         self.agents = []
         for i in range(self.num_agents):
             if self.num_predictors <= len(self.predictors):
-                agent_predictors = sample(self.predictors, self.num_predictors)
+                agent_predictors = random.sample(self.predictors, self.num_predictors)
             else:
                 agent_predictors = self.predictors
-            self.agents.append(Agent([randint(0, 1)], [], agent_predictors, [choice(agent_predictors)]))
+            self.agents.append(Agent([random.randint(0, 1)], [], agent_predictors, [random.choice(agent_predictors)]))
         self.calculate_attendance()    # Initial attendance
         self.calculate_scores()        # Initial scores
         self.update_predictions()      # Initial predictions
@@ -139,7 +142,7 @@ class Bar:
                 p.inaccuracy.append(1)
             else:
                 predictions = p.prediction
-                inaccuracy_history = np.mean([distance(history[i + 1], predictions[i]) for i in range(len(history) - 1)])
+                inaccuracy_history = np.mean([abs(history[i + 1] - predictions[i]) for i in range(len(history) - 1)])
                 p.inaccuracy.append(inaccuracy_history)
 
     def choose_predictor(self, DEBUG=False):
@@ -185,10 +188,10 @@ class Bar:
         data = pd.DataFrame.from_dict({
             'Round': round_list,
             'Agent': agent_list,
-            'State': state_list,
+            'Decision': state_list,
             'Score': score_list,
             'Policy': policy_list,
-            'inaccuracy': inaccuracy_list,
+            'Inaccuracy': inaccuracy_list,
             'Prediction': prediction_list
         })
 
@@ -198,78 +201,5 @@ class Bar:
         data['Num_predictors'] = self.num_predictors
         data['Num_agents'] = self.num_agents
         data = data[['Memory', 'Num_predictors', 'Identifier', 'Round', 'Agent',
-                     'State', 'Score', 'Policy', 'Prediction', 'inaccuracy']]
+                     'Decision', 'Score', 'Policy', 'Prediction', 'Inaccuracy']]
         return data
-
-def save_dataframe(dataFrame, filename, initial, mirrors=True, many=False):
-    """Save the DataFrame to a CSV file, handling file paths and initial/append modes."""
-    if not many:
-        if mirrors:
-            filename = "../Data_Farol/normal/data_all/" + filename
-        else:
-            filename = "../Data_Farol/normal/data_no_mirrors/" + filename
-    else:
-        if mirrors:
-            filename = "../Data_Farol/data_all/" + filename
-        else:
-            filename = "../Data_Farol/data_no_mirrors/" + filename
-    if initial:
-        try:
-            remove(filename)
-        except:
-            pass
-        with open(filename, 'w') as f:
-            dataFrame.to_csv(f, header=False, index=False)
-    else:
-        with open(filename, 'a') as f:
-            dataFrame.to_csv(f, header=False, index=False)
-
-def simulation(num_agents, threshold, memory_length, num_predictors, num_rounds, initial=True, identifier='', mirrors=True, DEBUG=False, to_file=True):
-    """Run a full simulation and optionally save the results."""
-    bar = Bar(num_agents, threshold, memory_length, num_predictors, identifier, mirrors)
-    if DEBUG:
-        print("**********************************")
-        print("Initial agents:")
-        for a in bar.agents:
-            print(a)
-        print("**********************************\n")
-    for i in range(num_rounds):
-        if DEBUG:
-            print("Round", i)
-            print("History:", bar.history)
-            # for p in bar.predictors:
-            #     print(f"Predictor: {str(p)} - Prediction: {p.prediction} - inaccuracy: {p.inaccuracy}")
-            # print("****************************")
-        bar.play_round(i + 1)
-        if DEBUG:
-            for a in bar.agents:
-                print(a)
-    data = bar.create_agents_dataframe()
-    data['Num_rounds'] = num_rounds
-    filename = f'simulation-{memory_length}-{num_predictors}-{num_agents}-{num_rounds}.csv'
-    if to_file:
-        if num_agents < 1000:
-            save_dataframe(data, filename, initial, mirrors)
-        else:
-            save_dataframe(data, filename, initial, mirrors, many=True)
-        if DEBUG:
-            print('Data saved in', filename)
-    return bar
-
-def run_sweep(memories, predictors, num_experiments, num_agents, threshold, num_rounds, mirrors=True, DEBUG=False):
-    """Run a sweep of simulations over different parameter combinations."""
-    print('********************************')
-    print('Running simulations...')
-    print('********************************\n')
-    identifier = 0
-    for d in memories:
-        for k in predictors:
-            for N in num_agents:
-                for T in num_rounds:
-                    initial = True
-                    print('Running experiments with parameters:')
-                    print(f"Memory={d}; Predictors={k}; Number of agents={N}; Number of rounds={T}; Mirrors?:{mirrors}")
-                    for i in range(num_experiments):
-                        simulation(N, threshold, d, k, T, initial=initial, identifier=identifier, mirrors=mirrors, DEBUG=DEBUG)
-                        identifier += 1
-                        initial = False
