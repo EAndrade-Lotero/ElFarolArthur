@@ -18,9 +18,9 @@ from data_utils import DataUtils
 from config import PATHS
 
 
-def main(ks, ds, num_rounds, num_experiments):
-
-    random.seed(42)  # For reproducibility
+def main(ks, ds, num_rounds, num_experiments, seed=42):
+    """Run the simulation for a range of memory lengths and predictors."""
+    random.seed(seed)  # For reproducibility
 
     df = InteractiveBar.run_sweep(
         memories=ds,
