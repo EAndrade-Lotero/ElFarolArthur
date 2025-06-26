@@ -43,7 +43,7 @@ ElFarolArthur/
 │   └── data_utils.py          # Helper methods for measurement
 ├── notebooks/                 # Jupyter notebooks to create figures used in [1]
 ├── images/                    # Main folder for figures used in [1]
-│   ├── diagrams/           # Diagrams with the information flow in the method of predictors
+│   ├── diagrams/              # Diagrams with the information flow in the method of predictors
 │   ├── Figures for paper/     # Figures used in [1]
 ├── LaTeX/FlowDiagram          # LaTeX code to create overal diagram
 └── README.md                  # Project documentation
