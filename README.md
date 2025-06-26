@@ -10,7 +10,7 @@ The primary goal of ElFarolArthur is to allow us to understand the **method of p
 
 The following is our flow diagram that replicates the method:
 
-![Flow diagram method of predictors](https://github.com/EAndrade-Lotero/ElFarolArthur/blob/master/LaTeX/FlowDiagram/diagram.pdf "Flow diagram method of predictors")
+![Flow diagram method of predictors](diagram.png "Flow diagram method of predictors")
 
 There are three main modules:
 
