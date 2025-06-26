@@ -26,7 +26,7 @@ This repository also contains the Jupyter notebooks used to create the figures f
 
 ## Usage example
 
-See this [Jupiter notebook](https://github.com/EAndrade-Lotero/ElFarolArthur/blob/master/notebooks/Figure1.ipynb).
+See this [Jupyter notebook](https://github.com/EAndrade-Lotero/ElFarolArthur/blob/master/notebooks/Figure1.ipynb).
 
 ---
 
