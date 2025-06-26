@@ -82,7 +82,6 @@ class InteractiveBar:
                                 memory_length=d, 
                                 num_predictors=k, 
                                 num_rounds=T, 
-                                initial=initial, 
                                 identifier=identifier, 
                                 mirrors=mirrors, 
                                 DEBUG=DEBUG
