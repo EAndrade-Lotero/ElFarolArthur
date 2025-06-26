@@ -6,9 +6,6 @@ import pandas as pd
 
 from itertools import product
 
-# Initialize random number generator for agent thresholds
-rng = np.random.default_rng()
-
 class Predictor:
     """Predictor class for agent attendance prediction."""
     def __init__(self, memory_length, mirrors):
@@ -210,9 +207,11 @@ class GaussianBar(Bar):
     """Bar class managing the simulation, agents, 
     and predictors where agents have different thresholds."""
 
-    def __init__(self, num_agents, threshold, std_threshold, memory_length, num_predictors, identifier, mirrors):
+    def __init__(self, num_agents, threshold, std_threshold, seed, memory_length, num_predictors, identifier, mirrors):
         self.std_threshold = std_threshold
         # Generate agent thresholds using a normal distribution (mean=threshold, std=std_threshold)
+        # Initialize random number generator for agent thresholds
+        rng = np.random.default_rng(seed)
         self.thresholds = rng.normal(loc=threshold, scale=std_threshold, size=num_agents)
         super().__init__(
             num_agents, threshold, memory_length,

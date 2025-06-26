@@ -43,6 +43,7 @@ def main_gaussian(ks, ds, sds, num_rounds, num_experiments, seed=42):
         memories=ds,
         predictors=ks,
         std_thresholds=sds,
+        seed=seed,
         num_experiments=num_experiments,
         num_agents=[100],
         threshold=0.6,
