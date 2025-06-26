@@ -6,7 +6,13 @@
 
 ## Overview
 
-The primary goal of ElFarolArthur is to allow us to understand the **method of predictors**, proposed by Brian Arthur as a solution to the problem. There are three main modules:
+The primary goal of ElFarolArthur is to allow us to understand the **method of predictors**, proposed by Brian Arthur as a solution to the problem. 
+
+The following is our flow diagram that replicates the method:
+
+![Flow diagram method of predictors](https://github.com/EAndrade-Lotero/ElFarolArthur/blob/master/LaTeX/FlowDiagram/diagram.pdf "Flow diagram method of predictors")
+
+There are three main modules:
 
 - **bar_classes**: Contains the class definition for predictors, agents and bar.
 - **sim_utils**: Contains the methods to run the simulations and sweeps.
@@ -20,7 +26,7 @@ This repository also contains the Jupyter notebooks used to create the figures f
 
 ## Usage example
 
-See this [Jupiter notebook](https://github.com/EAndrade-Lotero/ElFarolArthur/n).
+See this [Jupiter notebook](https://github.com/EAndrade-Lotero/ElFarolArthur/blob/master/notebooks/Figure1.ipynb).
 
 ---
 
@@ -33,13 +39,13 @@ ElFarolArthur/
 │   ├── config                 # Paths for figures and data
 │   ├── bar_classes.py         # Classes to replicate the method of predictors
 │   ├── sim_utils.py           # Helper methods for simulations and sweeps
-│   ├── tseitin.py             # Class to perform Tseitin transformation
+│   ├── main.py                # Helper functions to run simulations with fixed random seed
 │   └── data_utils.py          # Helper methods for measurement
 ├── notebooks/                 # Jupyter notebooks to create figures used in [1]
 ├── images/                    # Main folder for figures used in [1]
-│   ├── diagrams/              # Diagrams with the information flow in the method of predictors
-│   ├── Figures for paper/     # Images used in [1]
-├── LaTeX/                     # LaTeX code to put together the images
+│   ├── diagrams/           # Diagrams with the information flow in the method of predictors
+│   ├── Figures for paper/     # Figures used in [1]
+├── LaTeX/FlowDiagram          # LaTeX code to create overal diagram
 └── README.md                  # Project documentation
 
 ````
