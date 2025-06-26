@@ -6,8 +6,11 @@ import pandas as pd
 
 from itertools import product
 
+# Initialize random number generator for agent thresholds
+rng = np.random.default_rng()
+
 class Predictor:
-    '''Class defining a predictor'''
+    """Predictor class for agent attendance prediction."""
     def __init__(self, memory_length, mirrors):
         # Window size for memory, random if memory_length >= 1
         if memory_length < 1:
@@ -50,9 +53,8 @@ class Predictor:
         return window + cyclic + mirror
 
 
-
 class Agent:
-    '''Class defining an agent in the El Farol Bar problem'''
+    """Agent class representing a bar-goer with its own predictors and state."""
     def __init__(self, states, scores, predictors, active_predictor):
         self.state = states           # List of states (attendance decisions)
         self.score = scores           # List of scores
@@ -64,6 +66,7 @@ class Agent:
 
 
 class Bar:
+    """Bar class managing the simulation, agents, and predictors."""
     def __init__(self, num_agents, threshold, memory_length, num_predictors, identifier, mirrors):
         self.num_agents = num_agents
         self.threshold = threshold
@@ -200,4 +203,50 @@ class Bar:
         data['Num_agents'] = self.num_agents
         data = data[['Memory', 'Num_predictors', 'Identifier', 'Round', 'Agent',
                      'Decision', 'Score', 'Policy', 'Prediction', 'Inaccuracy']]
+        return data
+    
+
+class GaussianBar(Bar):
+    """Bar class managing the simulation, agents, 
+    and predictors where agents have different thresholds."""
+
+    def __init__(self, num_agents, threshold, std_threshold, memory_length, num_predictors, identifier, mirrors):
+        self.std_threshold = std_threshold
+        # Generate agent thresholds using a normal distribution (mean=threshold, std=std_threshold)
+        self.thresholds = rng.normal(loc=threshold, scale=std_threshold, size=num_agents)
+        super().__init__(
+            num_agents, threshold, memory_length,
+            num_predictors, identifier, mirrors
+        )
+
+    def calculate_states(self):
+        """Update each agent's state (attendance decision) based on their predictor's prediction and individual threshold."""
+        for i, a in enumerate(self.agents):
+            prediction = a.active_predictor[-1].prediction[-1] / self.num_agents
+            if prediction <= self.thresholds[i]:
+                a.state.append(1)
+            else:
+                a.state.append(0)
+
+    def calculate_scores(self):
+        """Update each agent's score based on attendance and their individual threshold."""
+        attendance = self.history[-1] / self.num_agents
+        for i, a in enumerate(self.agents):
+            if a.state[-1] == 1:
+                if attendance > self.thresholds[i]:
+                    a.score.append(-1)
+                else:
+                    a.score.append(1)
+            else:
+                a.score.append(0)
+
+    def create_agents_dataframe(self):
+        """Create a DataFrame with all agents' data for analysis or saving."""
+        data = super().create_agents_dataframe()
+        data['Std_threshold'] = self.std_threshold
+        data = data[[
+            'Identifier', 'Std_threshold', 'Memory', 'Num_predictors', 
+            'Round', 'Agent', 'Decision', 'Score', 
+            'Policy', 'Prediction', 'Inaccuracy',
+        ]]
         return data
